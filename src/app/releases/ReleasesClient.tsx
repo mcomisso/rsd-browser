@@ -7,7 +7,7 @@ import ReleaseDetailModal from "@/components/ReleaseDetailModal";
 import CountrySelector from "@/components/CountrySelector";
 
 const PAGE_SIZE = 24;
-const API = "https://myvinyls-django.fly.dev/api/rsd";
+const API = "/api/rsd";
 
 export default function ReleasesClient({
   countries,

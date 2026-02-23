@@ -7,7 +7,7 @@ import CountrySelector from "@/components/CountrySelector";
 
 const StoreMap = dynamic(() => import("./StoreMap"), { ssr: false });
 
-const API = "https://myvinyls-django.fly.dev/api/rsd";
+const API = "/api/rsd";
 
 export default function StoresClient({ countries }: { countries: string[] }) {
   const [country, setCountry] = useState("US");
