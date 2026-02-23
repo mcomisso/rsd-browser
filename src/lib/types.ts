@@ -8,7 +8,7 @@ export interface Release {
   display_format: string;
   limited_edition: boolean;
   retail_price: string | null;
-  country: string;
+  countries: string[];
   event_name: string;
   event_year: string;
   image_url: string;

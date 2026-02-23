@@ -56,7 +56,7 @@ export default function ReleaseDetailModal({
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Detail label="Label" value={release.label} />
             <Detail label="Format" value={release.display_format || release.format} />
-            <Detail label="Country" value={release.country} />
+            <Detail label="Countries" value={release.countries?.join(', ') || '—'} />
             <Detail label="Event" value={release.event_name} />
             {release.retail_price && (
               <Detail label="Price" value={release.retail_price} />
