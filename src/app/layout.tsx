@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "RSD Browser — Record Store Day 2026",
   description:
     "Browse Record Store Day 2026 releases and find participating stores near you.",
+  other: {
+    "apple-itunes-app": "app-id=1547173908",
+  },
 };
 
 export default function RootLayout({
