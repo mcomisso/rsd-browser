@@ -59,21 +59,34 @@ export default function StoresClient({ countries }: { countries: string[] }) {
     setMapZoom(country === "US" || country === "CA" || country === "AU" ? 4 : 6);
   }, [country]);
 
+  const [locating, setLocating] = useState(false);
+
   function handleNearMe() {
     if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      setMapCenter([latitude, longitude]);
-      setMapZoom(10);
-      try {
-        const url = `${API}/stores/nearby/?lat=${latitude}&lng=${longitude}&radius=50`;
-        const res = await fetch(url);
-        const data = await res.json();
-        setStores(data);
-      } catch {
-        // fall through
-      }
-    });
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setMapCenter([latitude, longitude]);
+        setMapZoom(10);
+        try {
+          const url = `${API}/stores/nearby/?lat=${latitude}&lng=${longitude}&radius=50`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("API error");
+          const data = await res.json();
+          setStores(Array.isArray(data) ? data : []);
+        } catch {
+          // Keep existing stores on error
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        // Geolocation denied or failed
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
+    );
   }
 
   return (
@@ -89,13 +102,21 @@ export default function StoresClient({ countries }: { countries: string[] }) {
           />
           <button
             onClick={handleNearMe}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-200 transition-colors hover:border-amber-500/50 hover:text-amber-400"
+            disabled={locating}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-200 transition-colors hover:border-amber-500/50 hover:text-amber-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Near Me
+            {locating ? (
+              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+            {locating ? "Locating..." : "Near Me"}
           </button>
           <p className="text-xs text-zinc-500">
             {loading ? "Loading..." : `${stores.length} stores found`}
